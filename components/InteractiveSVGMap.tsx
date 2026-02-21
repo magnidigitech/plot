@@ -319,69 +319,70 @@ export function InteractiveSVGMap({
             >
                 {({ zoomIn, zoomOut, resetTransform, centerView }) => (
                     <>
-                        {/* Unified Control Panel - Centered on mobile, Right-aligned on desktop */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-4 md:translate-x-0 md:top-4 md:bottom-auto z-50">
-                            <div className="flex flex-row md:flex-col items-center gap-2 bg-white/95 backdrop-blur p-1.5 md:p-2 rounded-full md:rounded-2xl shadow-2xl border border-gray-200">
-                                {/* Compass Reset Button (Now inside the main bar for mobile) */}
+                        {/* Unified Control Bar - Centered at the bottom for all screens, or top-right for desktop if preferred */}
+                        {/* We'll stick to bottom-centered for mobile as requested, and top-right for desktop */}
+                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 md:top-6 md:bottom-auto z-[100] pointer-events-auto">
+                            <div className="flex flex-row md:flex-col items-center gap-2 md:gap-3 bg-white/95 backdrop-blur-xl p-2 md:p-3 rounded-full md:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-200/50">
+                                {/* Compass Reset Button */}
                                 <button
                                     onClick={handleReset}
-                                    className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-all active:scale-90"
-                                    title="Reset Orientation"
+                                    className="p-2 md:p-3 hover:bg-gray-100 rounded-full md:rounded-2xl transition-all active:scale-90"
+                                    title="Reset orientation"
                                 >
                                     <Compass
-                                        className="w-5 h-5 md:w-6 md:h-6 text-blue-600 transition-transform duration-300 ease-out"
+                                        className="w-5 h-5 md:w-7 md:h-7 text-blue-600 transition-transform duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)"
                                         style={{ transform: `rotate(${-rotation}deg)` }}
                                     />
                                 </button>
 
-                                <div className="w-px md:w-full h-4 md:h-px bg-gray-100 mx-0.5" />
+                                <div className="w-px md:w-full h-6 md:h-px bg-gray-200/60 mx-1" />
 
-                                <button onClick={() => zoomIn(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom In">
-                                    <ZoomIn className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                                </button>
-                                <button onClick={() => zoomOut(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom Out">
-                                    <ZoomOut className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                                </button>
-                                <button onClick={() => {
-                                    resetTransform(200);
-                                    handleReset();
-                                    setTimeout(() => {
-                                        if (centerView) centerView(0.5, 200);
-                                    }, 50);
-                                }} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Reset View">
-                                    <Maximize className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                                </button>
+                                {/* Zoom Controls */}
+                                <div className="flex flex-row md:flex-col gap-1 md:gap-2">
+                                    <button onClick={() => zoomIn(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom In">
+                                        <ZoomIn className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+                                    </button>
+                                    <button onClick={() => zoomOut(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom Out">
+                                        <ZoomOut className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+                                    </button>
+                                    <button onClick={() => {
+                                        resetTransform(200);
+                                        handleReset();
+                                        setTimeout(() => {
+                                            if (centerView) centerView(0.5, 200);
+                                        }, 50);
+                                    }} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Recenter View">
+                                        <Maximize className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+                                    </button>
+                                </div>
 
-                                <div className="hidden md:block w-full h-px bg-gray-100 my-1" />
+                                <div className="w-px md:w-full h-6 md:h-px bg-gray-200/60 mx-1" />
 
-                                {/* Rotation Slider (Desktop only) */}
-                                <div className="hidden md:flex flex-col items-center py-2 gap-2">
-                                    <div className="relative h-24 w-1 bg-gray-100 rounded-full overflow-hidden">
+                                {/* Rotation Control - Slider for both mobile and desktop */}
+                                <div className="flex flex-row md:flex-col items-center gap-3 px-2 md:px-0 md:py-3">
+                                    <div className="relative w-24 md:w-1 h-1 md:h-32 bg-gray-100 rounded-full overflow-hidden">
                                         <input
                                             type="range"
                                             min="0"
                                             max="360"
                                             value={rotation}
                                             onChange={(e) => setRotation(Number(e.target.value))}
-                                            className="absolute inset-0 w-24 origin-center -rotate-90 opacity-0 cursor-pointer"
-                                            style={{ left: '-11px', top: '12px' }}
+                                            className="absolute inset-0 w-24 md:w-32 h-6 md:h-6 opacity-0 cursor-pointer md:origin-center md:-rotate-90"
+                                            style={{
+                                                left: window.innerWidth >= 768 ? '-15px' : '0',
+                                                top: window.innerWidth >= 768 ? '16px' : '-10px'
+                                            }}
                                         />
                                         <div
-                                            className="absolute bottom-0 w-full bg-blue-500 rounded-full transition-all"
-                                            style={{ height: `${(rotation / 360) * 100}%` }}
+                                            className="absolute bg-blue-500 rounded-full transition-all"
+                                            style={window.innerWidth >= 768
+                                                ? { bottom: 0, width: '100%', height: `${(rotation / 360) * 100}%` }
+                                                : { left: 0, height: '100%', width: `${(rotation / 360) * 100}%` }
+                                            }
                                         />
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-400">{Math.round(rotation)}°</span>
+                                    <span className="text-[10px] md:text-xs font-black text-gray-400 tabular-nums w-8 text-center">{Math.round(rotation)}°</span>
                                 </div>
-
-                                {/* Mobile Quick Rotate */}
-                                <button
-                                    onClick={() => setRotation((prev) => (prev + 90) % 360)}
-                                    className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors md:hidden"
-                                    title="Quick Rotate"
-                                >
-                                    <RotateCcw className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                                </button>
                             </div>
                         </div>
 
