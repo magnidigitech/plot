@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import parse, { DOMNode, Element, attributesToProps } from 'html-react-parser';
 import { Plot } from '@/lib/types';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { ZoomIn, ZoomOut, Maximize, RotateCcw } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize, RotateCcw, Compass, Navigation } from 'lucide-react';
 
 interface InteractiveSVGMapProps {
     svgUrl: string;
@@ -26,9 +26,45 @@ export function InteractiveSVGMap({
     const [svgContent, setSvgContent] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [rotation, setRotation] = useState(0);
+    const [isRotating, setIsRotating] = useState(false);
 
-    const handleRotate = () => {
-        setRotation((prev) => (prev + 90) % 360);
+    // Touch Rotation Logic
+    const [touchStartAngle, setTouchStartAngle] = useState<number | null>(null);
+    const [initialRotation, setInitialRotation] = useState(0);
+
+    const getAngle = (touches: React.TouchList) => {
+        if (touches.length < 2) return null;
+        const touch1 = touches[0];
+        const touch2 = touches[1];
+        return Math.atan2(touch2.clientY - touch1.clientY, touch2.clientX - touch1.clientX) * (180 / Math.PI);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length === 2) {
+            const angle = getAngle(e.touches);
+            if (angle !== null) {
+                setTouchStartAngle(angle);
+                setInitialRotation(rotation);
+            }
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (e.touches.length === 2 && touchStartAngle !== null) {
+            const currentAngle = getAngle(e.touches);
+            if (currentAngle !== null) {
+                const diff = currentAngle - touchStartAngle;
+                setRotation((initialRotation + diff) % 360);
+            }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setTouchStartAngle(null);
+    };
+
+    const handleReset = () => {
+        setRotation(0);
     };
 
     // Fetch the raw SVG file
@@ -283,23 +319,81 @@ export function InteractiveSVGMap({
             >
                 {({ zoomIn, zoomOut, resetTransform, centerView }) => (
                     <>
-                        <div className="absolute top-20 md:top-4 right-4 z-10 flex flex-col gap-2 bg-white/90 backdrop-blur p-2 rounded-xl shadow-md border border-gray-200">
-                            <button onClick={() => zoomIn(0.2, 200)} className="p-2 hover:bg-gray-100 rounded-lg" title="Zoom In"><ZoomIn className="w-5 h-5 text-gray-700" /></button>
-                            <button onClick={() => zoomOut(0.2, 200)} className="p-2 hover:bg-gray-100 rounded-lg" title="Zoom Out"><ZoomOut className="w-5 h-5 text-gray-700" /></button>
-                            <button onClick={() => {
-                                resetTransform(200);
-                                setTimeout(() => {
-                                    if (centerView) centerView(0.5, 200);
-                                }, 50);
-                            }} className="p-2 hover:bg-gray-100 rounded-lg" title="Reset View"><Maximize className="w-5 h-5 text-gray-700" /></button>
-                            <div className="h-px bg-gray-200 mx-1 my-1" />
-                            <button onClick={handleRotate} className="p-2 hover:bg-gray-100 rounded-lg" title="Rotate Map"><RotateCcw className="w-5 h-5 text-gray-700" /></button>
+                        {/* Control Panel - Positioned bottom-right on mobile, top-right on desktop */}
+                        <div className="absolute bottom-6 right-6 md:top-4 md:bottom-auto z-50 flex flex-col gap-3">
+                            {/* Compass Reset Button */}
+                            <button
+                                onClick={handleReset}
+                                className="bg-white/95 backdrop-blur p-3 rounded-full shadow-2xl border border-gray-200 transition-all active:scale-95 group"
+                                title="Reset Orientation"
+                            >
+                                <Compass
+                                    className="w-6 h-6 text-blue-600 transition-transform duration-300 ease-out"
+                                    style={{ transform: `rotate(${-rotation}deg)` }}
+                                />
+                            </button>
+
+                            {/* Main Controls */}
+                            <div className="flex flex-col gap-2 bg-white/95 backdrop-blur p-2 rounded-2xl shadow-2xl border border-gray-200">
+                                <button onClick={() => zoomIn(0.2, 200)} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Zoom In">
+                                    <ZoomIn className="w-5 h-5 text-gray-700" />
+                                </button>
+                                <button onClick={() => zoomOut(0.2, 200)} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Zoom Out">
+                                    <ZoomOut className="w-5 h-5 text-gray-700" />
+                                </button>
+                                <button onClick={() => {
+                                    resetTransform(200);
+                                    handleReset();
+                                    setTimeout(() => {
+                                        if (centerView) centerView(0.5, 200);
+                                    }, 50);
+                                }} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Reset View">
+                                    <Maximize className="w-5 h-5 text-gray-700" />
+                                </button>
+
+                                <div className="h-px bg-gray-100 mx-1 my-1" />
+
+                                {/* Rotation Slider (Hidden on mobile as they use gestures) */}
+                                <div className="hidden md:flex flex-col items-center py-2 gap-2">
+                                    <div className="relative h-24 w-1 bg-gray-100 rounded-full overflow-hidden">
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="360"
+                                            value={rotation}
+                                            onChange={(e) => setRotation(Number(e.target.value))}
+                                            className="absolute inset-0 w-24 origin-center -rotate-90 opacity-0 cursor-pointer"
+                                            style={{ left: '-11px', top: '12px' }}
+                                        />
+                                        <div
+                                            className="absolute bottom-0 w-full bg-blue-500 rounded-full transition-all"
+                                            style={{ height: `${(rotation / 360) * 100}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-400">{Math.round(rotation)}°</span>
+                                </div>
+
+                                <button
+                                    onClick={() => setRotation((prev) => (prev + 90) % 360)}
+                                    className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors md:hidden"
+                                    title="Quick Rotate"
+                                >
+                                    <RotateCcw className="w-5 h-5 text-gray-700" />
+                                </button>
+                            </div>
                         </div>
-                        <TransformComponent wrapperClass="!w-full !h-full" contentClass="flex items-center justify-center">
+
+                        <TransformComponent
+                            wrapperClass="!w-full !h-full"
+                            contentClass="flex items-center justify-center"
+                        >
                             {/* The Parsed Interactive SVG */}
                             <div
-                                className="flex items-center justify-center select-none transition-transform duration-300 ease-in-out"
+                                className="flex items-center justify-center select-none transition-transform duration-300 ease-out"
                                 style={{ transform: `rotate(${rotation}deg)` }}
+                                onTouchStart={handleTouchStart}
+                                onTouchMove={handleTouchMove}
+                                onTouchEnd={handleTouchEnd}
                             >
                                 {parse(svgContent, options)}
                             </div>
