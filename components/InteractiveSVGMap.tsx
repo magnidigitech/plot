@@ -319,8 +319,8 @@ export function InteractiveSVGMap({
             >
                 {({ zoomIn, zoomOut, resetTransform, centerView }) => (
                     <>
-                        {/* Control Panel - Horizontal on mobile, Vertical on desktop */}
-                        <div className="absolute bottom-4 right-4 md:top-4 md:bottom-auto z-50 flex flex-row-reverse md:flex-col items-end gap-2 md:gap-3">
+                        {/* Control Panel - Centered on mobile, Right-aligned on desktop */}
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-4 md:translate-x-0 md:top-4 md:bottom-auto z-50 flex flex-row md:flex-col items-center gap-2 md:gap-3">
                             {/* Compass Reset Button */}
                             <button
                                 onClick={handleReset}
