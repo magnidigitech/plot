@@ -280,9 +280,6 @@ export default function Home() {
             onPlotSelect={(signature, plot) => {
               setSelectedSignature(signature);
               setSelectedPlot(plot as Plot || null);
-              if (window.innerWidth < 768) {
-                setSidebarOpen(true);
-              }
             }}
             onPlotHover={(e, signature, plot) => {
               if (plot && plot.status !== 'ROAD') {

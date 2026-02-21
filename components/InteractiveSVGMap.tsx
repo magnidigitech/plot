@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import parse, { DOMNode, Element, attributesToProps } from 'html-react-parser';
 import { Plot } from '@/lib/types';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize, RotateCcw } from 'lucide-react';
 
 interface InteractiveSVGMapProps {
     svgUrl: string;
@@ -25,6 +25,11 @@ export function InteractiveSVGMap({
 }: InteractiveSVGMapProps) {
     const [svgContent, setSvgContent] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [rotation, setRotation] = useState(0);
+
+    const handleRotate = () => {
+        setRotation((prev) => (prev + 90) % 360);
+    };
 
     // Fetch the raw SVG file
     useEffect(() => {
@@ -278,19 +283,24 @@ export function InteractiveSVGMap({
             >
                 {({ zoomIn, zoomOut, resetTransform, centerView }) => (
                     <>
-                        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 bg-white/90 backdrop-blur p-2 rounded-xl shadow-md border border-gray-200">
-                            <button onClick={() => zoomIn(0.2, 200)} className="p-2 hover:bg-gray-100 rounded-lg"><ZoomIn className="w-5 h-5 text-gray-700" /></button>
-                            <button onClick={() => zoomOut(0.2, 200)} className="p-2 hover:bg-gray-100 rounded-lg"><ZoomOut className="w-5 h-5 text-gray-700" /></button>
+                        <div className="absolute top-20 md:top-4 right-4 z-10 flex flex-col gap-2 bg-white/90 backdrop-blur p-2 rounded-xl shadow-md border border-gray-200">
+                            <button onClick={() => zoomIn(0.2, 200)} className="p-2 hover:bg-gray-100 rounded-lg" title="Zoom In"><ZoomIn className="w-5 h-5 text-gray-700" /></button>
+                            <button onClick={() => zoomOut(0.2, 200)} className="p-2 hover:bg-gray-100 rounded-lg" title="Zoom Out"><ZoomOut className="w-5 h-5 text-gray-700" /></button>
                             <button onClick={() => {
                                 resetTransform(200);
                                 setTimeout(() => {
                                     if (centerView) centerView(0.5, 200);
                                 }, 50);
-                            }} className="p-2 hover:bg-gray-100 rounded-lg"><Maximize className="w-5 h-5 text-gray-700" /></button>
+                            }} className="p-2 hover:bg-gray-100 rounded-lg" title="Reset View"><Maximize className="w-5 h-5 text-gray-700" /></button>
+                            <div className="h-px bg-gray-200 mx-1 my-1" />
+                            <button onClick={handleRotate} className="p-2 hover:bg-gray-100 rounded-lg" title="Rotate Map"><RotateCcw className="w-5 h-5 text-gray-700" /></button>
                         </div>
                         <TransformComponent wrapperClass="!w-full !h-full" contentClass="flex items-center justify-center">
                             {/* The Parsed Interactive SVG */}
-                            <div className="flex items-center justify-center select-none origin-center">
+                            <div
+                                className="flex items-center justify-center select-none transition-transform duration-300 ease-in-out"
+                                style={{ transform: `rotate(${rotation}deg)` }}
+                            >
                                 {parse(svgContent, options)}
                             </div>
                         </TransformComponent>
