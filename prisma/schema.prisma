@@ -1,0 +1,33 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model Plot {
+  id                 Int      @id @default(autoincrement())
+  signature          String   @unique
+  plotNumber         String
+  status             String   @default("AVAILABLE") // AVAILABLE, SOLD, HOLD
+  area_sqyds         Float
+  dimensions         String?
+  dim_top            String?
+  dim_right          String?
+  dim_bottom         String?
+  dim_left           String?
+  facing             String?
+  price_per_sqyd     Float?
+  notes              String?
+  contact_role       String?
+  contact_name       String?
+  contact_number     String?
+  show_info_publicly Boolean  @default(false)
+  show_price_publicly Boolean @default(true)
+  x                  Float
+  y                  Float
+  width              Float
+  height             Float
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
