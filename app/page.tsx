@@ -339,10 +339,6 @@ export default function Home() {
                   <span className="font-bold text-gray-900 text-base">{selectedPlot.area_sqyds} sqyds</span>
                 </div>
                 <div className="flex flex-col bg-gray-50 p-3 rounded-xl border border-gray-100">
-                  <span className="text-gray-500 text-[10px] font-bold uppercase mb-1">Dimensions</span>
-                  <span className="font-bold text-gray-900 text-base">{selectedPlot.dimensions || '-'}</span>
-                </div>
-                <div className="flex flex-col bg-gray-50 p-3 rounded-xl border border-gray-100">
                   <span className="text-gray-500 text-[10px] font-bold uppercase mb-1">Facing</span>
                   <span className="font-bold text-gray-900 text-base">{selectedPlot.facing || '-'}</span>
                 </div>
@@ -353,6 +349,50 @@ export default function Home() {
                   </span>
                 </div>
               </div>
+
+              {(selectedPlot.dim_top || selectedPlot.dim_bottom || selectedPlot.dim_left || selectedPlot.dim_right) && (
+                <div className="mb-6">
+                  <span className="text-gray-500 text-[10px] font-bold uppercase mb-3 block tracking-widest">Boundary Dimensions</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center gap-3 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100/50">
+                      <div className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-md shrink-0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-bold text-blue-400 uppercase leading-none mb-1">Top</span>
+                        <span className="text-sm font-bold text-gray-800">{selectedPlot.dim_top || '-'}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100/50">
+                      <div className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-md shrink-0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-bold text-blue-400 uppercase leading-none mb-1">Bottom</span>
+                        <span className="text-sm font-bold text-gray-800">{selectedPlot.dim_bottom || '-'}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100/50">
+                      <div className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-md shrink-0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-bold text-blue-400 uppercase leading-none mb-1">Left</span>
+                        <span className="text-sm font-bold text-gray-800">{selectedPlot.dim_left || '-'}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 bg-blue-50/50 p-2.5 rounded-lg border border-blue-100/50">
+                      <div className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-600 rounded-md shrink-0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-bold text-blue-400 uppercase leading-none mb-1">Right</span>
+                        <span className="text-sm font-bold text-gray-800">{selectedPlot.dim_right || '-'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {selectedPlot.show_info_publicly && selectedPlot.contact_number && (
                 <div className="flex gap-2 w-full mt-2">
