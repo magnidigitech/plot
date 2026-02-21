@@ -23,6 +23,38 @@ export default function Home() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000]);
   const [facingFilter, setFacingFilter] = useState("ALL");
 
+  // Dynamic Bounds Calculation
+  const bounds = useMemo(() => {
+    const validPlots = plots.filter(p => p.status !== 'ROAD');
+    if (validPlots.length === 0) return { minArea: 0, maxArea: 10000, minPrice: 0, maxPrice: 500000 };
+
+    const areas = validPlots.map(p => p.area_sqyds);
+    const minA = Math.min(...areas);
+    const maxA = Math.max(...areas);
+
+    const publicPrices = validPlots
+      .filter(p => p.show_price_publicly && (p.price_per_sqyd || 0) > 0)
+      .map(p => p.price_per_sqyd as number);
+
+    const minP = publicPrices.length > 0 ? Math.min(...publicPrices) : 0;
+    const maxP = publicPrices.length > 0 ? Math.max(...publicPrices) : 500000;
+
+    return {
+      minArea: minA > 100 ? minA - 100 : 0,
+      maxArea: maxA + 100,
+      minPrice: minP > 100 ? minP - 100 : 0,
+      maxPrice: maxP + 100
+    };
+  }, [plots]);
+
+  // Update ranges when bounds change (first load)
+  useEffect(() => {
+    if (plots.length > 0) {
+      setAreaRange([bounds.minArea, bounds.maxArea]);
+      setPriceRange([bounds.minPrice, bounds.maxPrice]);
+    }
+  }, [bounds]);
+
   useEffect(() => {
     async function fetchPlots() {
       try {
@@ -52,14 +84,19 @@ export default function Home() {
       const matchesSize = plot.area_sqyds >= areaRange[0] && plot.area_sqyds <= areaRange[1];
 
       const price = plot.price_per_sqyd || 0;
-      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
+      const isPriceVisible = plot.show_price_publicly;
+
+      // If filtering by price, only show plots with visible prices matching the range
+      const matchesPrice = isPriceVisible
+        ? (price >= priceRange[0] && price <= priceRange[1])
+        : (priceRange[0] === bounds.minPrice && priceRange[1] === bounds.maxPrice); // Show all if price filter is untouched
 
       const matchesFacing =
         facingFilter === "ALL" || plot.facing === facingFilter;
 
       return matchesSearch && matchesSize && matchesPrice && matchesFacing;
     });
-  }, [plots, searchQuery, areaRange, priceRange, facingFilter]);
+  }, [plots, searchQuery, areaRange, priceRange, facingFilter, bounds]);
 
   const sortedAndFiltered = [...filteredPlots].sort((a, b) =>
     (a.plotNumber || "").localeCompare(b.plotNumber || "")
@@ -119,9 +156,9 @@ export default function Home() {
                 <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{areaRange[0]} - {areaRange[1]}</span>
               </div>
               <Slider
-                min={0}
-                max={10000}
-                step={50}
+                min={bounds.minArea}
+                max={bounds.maxArea}
+                step={1}
                 value={[areaRange[0], areaRange[1]]}
                 onValueChange={(val) => setAreaRange([val[0], val[1]])}
               />
@@ -134,12 +171,15 @@ export default function Home() {
                 <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</span>
               </div>
               <Slider
-                min={0}
-                max={500000}
-                step={5000}
+                min={bounds.minPrice}
+                max={bounds.maxPrice}
+                step={1}
                 value={[priceRange[0], priceRange[1]]}
                 onValueChange={(val) => setPriceRange([val[0], val[1]])}
               />
+              <p className="text-[10px] text-gray-400 italic mt-1 leading-tight">
+                * Plots without public pricing are hidden when filtering by price.
+              </p>
             </div>
 
             {/* Facing */}
@@ -163,8 +203,8 @@ export default function Home() {
             <button
               onClick={() => {
                 setSearchQuery("");
-                setAreaRange([0, 10000]);
-                setPriceRange([0, 500000]);
+                setAreaRange([bounds.minArea, bounds.maxArea]);
+                setPriceRange([bounds.minPrice, bounds.maxPrice]);
                 setFacingFilter("ALL");
                 setSelectedPlot(null);
                 setSelectedSignature(null);
