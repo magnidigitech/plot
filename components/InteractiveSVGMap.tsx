@@ -319,22 +319,23 @@ export function InteractiveSVGMap({
             >
                 {({ zoomIn, zoomOut, resetTransform, centerView }) => (
                     <>
-                        {/* Control Panel - Centered on mobile, Right-aligned on desktop */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-4 md:translate-x-0 md:top-4 md:bottom-auto z-50 flex flex-row md:flex-col items-center gap-2 md:gap-3">
-                            {/* Compass Reset Button */}
-                            <button
-                                onClick={handleReset}
-                                className="bg-white/95 backdrop-blur p-2 md:p-3 rounded-full shadow-xl border border-gray-200 transition-all active:scale-90"
-                                title="Reset Orientation"
-                            >
-                                <Compass
-                                    className="w-5 h-5 md:w-6 md:h-6 text-blue-600 transition-transform duration-300 ease-out"
-                                    style={{ transform: `rotate(${-rotation}deg)` }}
-                                />
-                            </button>
+                        {/* Unified Control Panel - Centered on mobile, Right-aligned on desktop */}
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-4 md:translate-x-0 md:top-4 md:bottom-auto z-50">
+                            <div className="flex flex-row md:flex-col items-center gap-2 bg-white/95 backdrop-blur p-1.5 md:p-2 rounded-full md:rounded-2xl shadow-2xl border border-gray-200">
+                                {/* Compass Reset Button (Now inside the main bar for mobile) */}
+                                <button
+                                    onClick={handleReset}
+                                    className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-all active:scale-90"
+                                    title="Reset Orientation"
+                                >
+                                    <Compass
+                                        className="w-5 h-5 md:w-6 md:h-6 text-blue-600 transition-transform duration-300 ease-out"
+                                        style={{ transform: `rotate(${-rotation}deg)` }}
+                                    />
+                                </button>
 
-                            {/* Main Controls - Flat/Horizontal on Mobile */}
-                            <div className="flex flex-row md:flex-col gap-1 md:gap-2 bg-white/95 backdrop-blur p-1 md:p-2 rounded-full md:rounded-2xl shadow-xl border border-gray-200 items-center">
+                                <div className="w-px md:w-full h-4 md:h-px bg-gray-100 mx-0.5" />
+
                                 <button onClick={() => zoomIn(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom In">
                                     <ZoomIn className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                                 </button>
@@ -351,7 +352,7 @@ export function InteractiveSVGMap({
                                     <Maximize className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                                 </button>
 
-                                <div className="hidden md:block w-px md:w-full h-full md:h-px bg-gray-100 mx-1 my-1" />
+                                <div className="hidden md:block w-full h-px bg-gray-100 my-1" />
 
                                 {/* Rotation Slider (Desktop only) */}
                                 <div className="hidden md:flex flex-col items-center py-2 gap-2">
@@ -373,7 +374,7 @@ export function InteractiveSVGMap({
                                     <span className="text-[10px] font-bold text-gray-400">{Math.round(rotation)}°</span>
                                 </div>
 
-                                {/* Mobile Quick Rotate (Optional, but icons are already small) */}
+                                {/* Mobile Quick Rotate */}
                                 <button
                                     onClick={() => setRotation((prev) => (prev + 90) % 360)}
                                     className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors md:hidden"
