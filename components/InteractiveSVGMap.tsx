@@ -319,27 +319,27 @@ export function InteractiveSVGMap({
             >
                 {({ zoomIn, zoomOut, resetTransform, centerView }) => (
                     <>
-                        {/* Control Panel - Positioned bottom-right on mobile, top-right on desktop */}
-                        <div className="absolute bottom-6 right-6 md:top-4 md:bottom-auto z-50 flex flex-col gap-3">
+                        {/* Control Panel - Horizontal on mobile, Vertical on desktop */}
+                        <div className="absolute bottom-4 right-4 md:top-4 md:bottom-auto z-50 flex flex-row-reverse md:flex-col items-end gap-2 md:gap-3">
                             {/* Compass Reset Button */}
                             <button
                                 onClick={handleReset}
-                                className="bg-white/95 backdrop-blur p-3 rounded-full shadow-2xl border border-gray-200 transition-all active:scale-95 group"
+                                className="bg-white/95 backdrop-blur p-2 md:p-3 rounded-full shadow-xl border border-gray-200 transition-all active:scale-90"
                                 title="Reset Orientation"
                             >
                                 <Compass
-                                    className="w-6 h-6 text-blue-600 transition-transform duration-300 ease-out"
+                                    className="w-5 h-5 md:w-6 md:h-6 text-blue-600 transition-transform duration-300 ease-out"
                                     style={{ transform: `rotate(${-rotation}deg)` }}
                                 />
                             </button>
 
-                            {/* Main Controls */}
-                            <div className="flex flex-col gap-2 bg-white/95 backdrop-blur p-2 rounded-2xl shadow-2xl border border-gray-200">
-                                <button onClick={() => zoomIn(0.2, 200)} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Zoom In">
-                                    <ZoomIn className="w-5 h-5 text-gray-700" />
+                            {/* Main Controls - Flat/Horizontal on Mobile */}
+                            <div className="flex flex-row md:flex-col gap-1 md:gap-2 bg-white/95 backdrop-blur p-1 md:p-2 rounded-full md:rounded-2xl shadow-xl border border-gray-200 items-center">
+                                <button onClick={() => zoomIn(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom In">
+                                    <ZoomIn className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                                 </button>
-                                <button onClick={() => zoomOut(0.2, 200)} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Zoom Out">
-                                    <ZoomOut className="w-5 h-5 text-gray-700" />
+                                <button onClick={() => zoomOut(0.2, 200)} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Zoom Out">
+                                    <ZoomOut className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                                 </button>
                                 <button onClick={() => {
                                     resetTransform(200);
@@ -347,13 +347,13 @@ export function InteractiveSVGMap({
                                     setTimeout(() => {
                                         if (centerView) centerView(0.5, 200);
                                     }, 50);
-                                }} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Reset View">
-                                    <Maximize className="w-5 h-5 text-gray-700" />
+                                }} className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors" title="Reset View">
+                                    <Maximize className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                                 </button>
 
-                                <div className="h-px bg-gray-100 mx-1 my-1" />
+                                <div className="hidden md:block w-px md:w-full h-full md:h-px bg-gray-100 mx-1 my-1" />
 
-                                {/* Rotation Slider (Hidden on mobile as they use gestures) */}
+                                {/* Rotation Slider (Desktop only) */}
                                 <div className="hidden md:flex flex-col items-center py-2 gap-2">
                                     <div className="relative h-24 w-1 bg-gray-100 rounded-full overflow-hidden">
                                         <input
@@ -373,12 +373,13 @@ export function InteractiveSVGMap({
                                     <span className="text-[10px] font-bold text-gray-400">{Math.round(rotation)}°</span>
                                 </div>
 
+                                {/* Mobile Quick Rotate (Optional, but icons are already small) */}
                                 <button
                                     onClick={() => setRotation((prev) => (prev + 90) % 360)}
-                                    className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors md:hidden"
+                                    className="p-2 md:p-2.5 hover:bg-gray-100 rounded-full md:rounded-xl transition-colors md:hidden"
                                     title="Quick Rotate"
                                 >
-                                    <RotateCcw className="w-5 h-5 text-gray-700" />
+                                    <RotateCcw className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                                 </button>
                             </div>
                         </div>
